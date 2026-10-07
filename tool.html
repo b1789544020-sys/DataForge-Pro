@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataForge — Tool</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <a href="index.html" class="back-arrow">←</a>
+    <span class="logo" id="toolIcon">⚡</span>
+    <div>
+      <h1 id="toolName">Tool</h1>
+      <p class="tagline" id="toolDesc"></p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="lang-toggle" id="langToggle">中文</button>
+  </div>
+</header>
+
+<main class="workspace">
+  <div class="wb-grid" id="wbGrid">
+    <!-- INPUT -->
+    <section class="panel">
+      <div class="panel-head">
+        <h4 id="lblInput">Input</h4>
+        <div class="panel-actions">
+          <label class="btn-file" id="lblUpload" title="Drag and drop files here too">📁 Upload
+            <input type="file" id="fileInput" multiple hidden>
+          </label>
+          <button class="btn-ghost" id="loadSample">Load Sample</button>
+          <button class="btn-ghost" id="clearInput">Clear</button>
+        </div>
+      </div>
+      <textarea id="inputArea" spellcheck="false" placeholder="Paste data here, or upload a file…"></textarea>
+      <div id="dropZone" class="drop-zone">⬇ Drag and drop files here</div>
+      <div id="imagePreview" class="image-preview" hidden></div>
+      <div class="result-meta" id="inputStat"></div>
+    </section>
+
+    <!-- OPTIONS -->
+    <section class="panel">
+      <div class="panel-head"><h4 id="lblOptions">Options</h4></div>
+      <!-- Optional AI copilot; populated by ai-copilot.js, stays empty if AI scripts are removed -->
+      <div class="ai-bar" id="aiBar"></div>
+      <div class="options" id="optionsArea"></div>
+      <button class="btn-primary btn-run" id="runBtn">⚡ Run</button>
+    </section>
+
+    <!-- OUTPUT -->
+    <section class="panel panel-wide">
+      <div class="panel-head">
+        <h4 id="lblOutput">Output</h4>
+        <div class="panel-actions">
+          <button class="btn-ghost" id="copyBtn">📋 Copy</button>
+          <button class="btn-primary" id="downloadBtn">💾 Export</button>
+        </div>
+      </div>
+      <textarea id="outputArea" spellcheck="false" readonly placeholder="Results will appear here…"></textarea>
+      <div id="outputExtra" class="output-extra" hidden></div>
+      <div class="result-meta" id="outputStat"></div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/tools-data.js"></script>
+<script src="assets/js/engine.js"></script>
+<!-- Optional AI layer: disabled until the user configures a provider. -->
+<script src="assets/js/ai.js"></script>
+<script src="assets/js/ai-assist.js"></script>
+<script src="assets/js/ai-panel.js"></script>
+<script src="assets/js/ai-copilot.js"></script>
+<script src="assets/js/workbench.js"></script>
+</body>
+</html>

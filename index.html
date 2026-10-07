@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataForge — 一键数据处理工具套件</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚡</span>
+    <div>
+      <h1>DataForge</h1>
+      <p class="tagline">浏览器端一键数据处理套件 · 100% 本地运行 · 隐私安全 · 完全开源免费</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="lang-toggle" id="langToggle">EN</button>
+  </div>
+</header>
+
+<main class="dashboard">
+  <section class="hero">
+    <h2>选择一个工具开始</h2>
+    <p>所有处理都在你的浏览器中完成，数据永不上传服务器。完全开源、零追踪、无广告。</p>
+    <input type="text" id="toolSearch" placeholder="🔍 搜索工具（例如：CSV、去重、Excel、JSON…）">
+  </section>
+
+  <!-- Optional AI tool picker; filled in by ai-finder.js -->
+  <section class="ai-finder" id="aiFinder"></section>
+
+  <div class="tool-grid" id="toolGrid"></div>
+</main>
+
+<footer class="footer">
+  <p><span class="copyright" id="footerCopyright">DataForge · 100% 开源免费 · © 2026</span></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/tools-data.js"></script>
+<!-- Optional AI layer: disabled until the user configures a provider. -->
+<script src="assets/js/ai.js"></script>
+<script src="assets/js/ai-assist.js"></script>
+<script src="assets/js/ai-panel.js"></script>
+<script src="assets/js/ai-finder.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,556 @@
+/* DataForge Pro — Internationalization (i18n) System
+ * Supports English (default) and Chinese (Simplified).
+ * Add new languages by extending LANG_MAP.
+ */
+window.DFP = window.DFP || {};
+
+const ZH = {
+  /* ---- Brand ---- */
+  "brand.name": "DataForge Pro",
+  "brand.tagline": "浏览器端数据处理套件 · 100% 本地运行 · 隐私安全",
+  "brand.tagline.en": "In-browser data toolkit · 100% local · Privacy-first",
+
+  /* ---- Dashboard ---- */
+  "hero.title": "选择一个工具开始",
+  "hero.subtitle": "所有处理都在你的浏览器中完成，数据永不上传服务器。",
+  "search.placeholder": "🔍 搜索工具（例如：CSV、去重、Excel、JSON…）",
+  "license.status.unlocked": "✅ 已激活",
+  "license.status.trial": "🔓 试用版",
+
+  /* ---- License Modal ---- */
+  "license.modal.title": "激活 DataForge Pro",
+  "license.modal.desc": "请输入你从 Gumroad 购买后收到的许可证密钥。",
+  "license.input.placeholder": "DFP-XXXX-XXXX-XXXX",
+  "license.btn.cancel": "取消",
+  "license.btn.activate": "激活",
+  "license.hint.valid": "✅ 密钥有效！所有 Pro 工具已解锁。",
+  "license.hint.invalid": "❌ 密钥无效，请检查后重试。",
+  "license.hint.consumed": "❌ 此密钥已被使用（超出设备数上限）。",
+  "license.footer": "DataForge Pro v1.0 · © 2026",
+
+  /* ---- Tool Categories ---- */
+  "cat.table": "表格",
+  "cat.convert": "转换",
+  "cat.text": "文本",
+  "cat.utility": "实用工具",
+  "cat.image": "图片",
+
+  /* ---- Tool Names & Descriptions ---- */
+  "tool.csv-cleaner.name": "CSV 清洗器",
+  "tool.csv-cleaner.desc": "一键去重、去空行、去空格、统一大小写，清洗混乱的 CSV/Excel 数据。",
+  "tool.csv-to-json.name": "CSV ⇄ JSON 转换",
+  "tool.csv-to-json.desc": "CSV 与 JSON 互相转换，支持嵌套字段、类型推断与美化输出。",
+  "tool.csv-to-sql.name": "CSV → SQL 生成器",
+  "tool.csv-to-sql.desc": "把表格一键生成 INSERT / CREATE TABLE 语句，支持多种数据库方言。",
+  "tool.csv-to-markdown.name": "表格 → Markdown",
+  "tool.csv-to-markdown.desc": "把 CSV/Excel 转成 Markdown 表格，直接粘贴到 README 或文档。",
+  "tool.json-formatter.name": "JSON 格式化 / 校验",
+  "tool.json-formatter.desc": "美化、压缩、校验 JSON，定位语法错误，支持排序键与转义。",
+  "tool.text-batch.name": "文本批处理",
+  "tool.text-batch.desc": "批量查找替换、加前后缀、编号、大小写转换、正则处理多行文本。",
+  "tool.column-extractor.name": "列提取 / 重排",
+  "tool.column-extractor.desc": "从表格中选择、排序、重命名、删除指定列，重新导出。",
+  "tool.dedup-merge.name": "多表合并 / 去重",
+  "tool.dedup-merge.desc": "合并多个 CSV 文件，按主键去重，一键生成汇总表。",
+  "tool.case-converter.name": "命名格式转换",
+  "tool.case-converter.desc": "camelCase / snake_case / kebab-case / PascalCase 之间互转。",
+  "tool.regex-tester.name": "正则表达式测试器",
+  "tool.regex-tester.desc": "实时测试正则表达式，高亮匹配结果，支持标志位与替换预览。",
+  "tool.base64-tool.name": "Base64 / URL 编解码",
+  "tool.base64-tool.desc": "Base64 编码解码、URL 编码解码、HTML 实体转义。",
+  "tool.image-batch.name": "图片批处理",
+  "tool.image-batch.desc": "批量压缩、调整大小、转换格式、添加水印，全部在浏览器本地完成。",
+
+  /* ---- Workbench General ---- */
+  "wb.input": "输入",
+  "wb.upload": "📁 上传文件",
+  "wb.sample": "载入示例",
+  "wb.clear": "清空",
+  "wb.input.placeholder": "在此粘贴数据，或上传文件…",
+  "wb.options": "选项",
+  "wb.run": "⚡ 一键处理",
+  "wb.output": "输出",
+  "wb.copy": "📋 复制",
+  "wb.export": "💾 导出文件",
+  "wb.output.placeholder": "处理结果将显示在这里…",
+  "wb.copied": "✅ 已复制到剪贴板！",
+  "wb.pro.locked": "🔒 这是一个 Pro 工具",
+  "wb.pro.locked.desc": "输入你的许可证密钥即可解锁全部 Pro 工具。",
+  "wb.pro.activate": "激活",
+  "wb.pro.back": "← 返回工具列表",
+  "wb.stat.rows": "行",
+  "wb.stat.cols": "列",
+  "wb.stat.chars": "字符",
+  "wb.stat.lines": "行",
+  "wb.stat.bytes": "字节",
+  "wb.stat.records": "条",
+  "wb.stat.error": "⚠️ 错误：",
+  "wb.no.data": "请先输入数据",
+  "wb.upload.multi": "📁 上传多个文件",
+
+  /* ---- CSV Cleaner Options ---- */
+  "opt.trim": "去除首尾空格",
+  "opt.trim.tip": "去除每个单元格的首尾空白字符",
+  "opt.dropEmptyRows": "删除空行",
+  "opt.dropEmptyRows.tip": "删除所有字段均为空的行",
+  "opt.dedup": "去重（整行）",
+  "opt.dedup.tip": "删除完全重复的行，保留首次出现",
+  "opt.caseMode": "大小写转换",
+  "opt.caseMode.tip": "将文本统一为大写或小写",
+  "opt.caseMode.none": "不转换",
+  "opt.caseMode.upper": "全部大写",
+  "opt.caseMode.lower": "全部小写",
+  "opt.hasHeader": "第一行为表头",
+  "opt.hasHeader.tip": "勾选后将跳过表头行的大小写转换",
+  "opt.stripQuotes": "去除引号",
+  "opt.stripQuotes.tip": "移除单元格包裹的英文双引号",
+  "opt.dedupColumn": "按指定列去重",
+  "opt.dedupColumn.tip": "仅保留指定列值唯一的行（保留首次出现）",
+  "opt.dedupColumn.placeholder": "输入列名，留空则按整行去重",
+  "opt.fillEmpty": "填充空值",
+  "opt.fillEmpty.tip": "将空单元格替换为指定值",
+  "opt.fillEmpty.placeholder": "输入填充值（如: N/A）",
+  "opt.removeEmptyCols": "删除全空列",
+  "opt.removeEmptyCols.tip": "删除所有行均为空的列",
+  "opt.normalizeWhitespace": "规范化空白",
+  "opt.normalizeWhitespace.tip": "将多个连续空格/制表符缩为单个空格",
+  "opt.stripHTML": "去除 HTML 标签",
+  "opt.stripHTML.tip": "移除单元格中的 HTML 标签，仅保留纯文本",
+  "opt.dateFormat": "日期格式标准化",
+  "opt.dateFormat.tip": "将常见日期格式统一为 YYYY-MM-DD",
+  "opt.dateFormat.none": "不处理",
+  "opt.dateFormat.ymd": "转为 YYYY-MM-DD",
+  "opt.dateFormat.dmy": "转为 DD/MM/YYYY",
+  "opt.validateEmail": "标记/删除无效邮箱",
+  "opt.validateEmail.tip": "检测并标记不符合邮箱格式的单元格",
+  "opt.validateEmail.off": "不处理",
+  "opt.validateEmail.mark": "仅标记",
+  "opt.validateEmail.remove": "删除行",
+
+  /* ---- CSV→JSON Options ---- */
+  "opt.pretty": "美化输出（缩进）",
+  "opt.pretty.tip": "使用缩进和换行美化 JSON 输出",
+  "opt.inferTypes": "类型推断",
+  "opt.inferTypes.tip": "自动检测数字、布尔值并转换类型（而非全部作为字符串）",
+  "opt.jsonFrom": "转换方向",
+  "opt.jsonFrom.csv": "CSV → JSON",
+  "opt.jsonFrom.json": "JSON → CSV",
+
+  /* ---- SQL Options ---- */
+  "opt.tableName": "表名",
+  "opt.tableName.tip": "SQL 语句中使用的表名",
+  "opt.tableName.placeholder": "my_table",
+  "opt.dialect": "数据库方言",
+  "opt.dialect.tip": "选择标识符引号风格",
+  "opt.dialect.mysql": "MySQL（反引号）",
+  "opt.dialect.postgres": "PostgreSQL（双引号）",
+  "opt.createTable": "生成 CREATE TABLE",
+  "opt.createTable.tip": "自动推断列类型并生成建表语句",
+  "opt.multiRow": "多行 INSERT",
+  "opt.multiRow.tip": "使用单条 INSERT 包含多行值（批量插入）",
+
+  /* ---- Markdown Options ---- */
+  "opt.align": "列对齐方式",
+  "opt.align.tip": "设置 Markdown 表格列的对齐方式",
+  "opt.align.left": "左对齐",
+  "opt.align.center": "居中",
+  "opt.align.right": "右对齐",
+
+  /* ---- JSON Formatter Options ---- */
+  "opt.minify": "压缩输出（单行）",
+  "opt.sortKeys": "按键名排序",
+  "opt.indent": "缩进空格数",
+  "opt.indent.tip": "美化的缩进空格数量",
+
+  /* ---- Text Batch Options ---- */
+  "opt.find": "查找内容",
+  "opt.find.tip": "要搜索的文本或正则表达式",
+  "opt.find.placeholder": "输入查找文本…",
+  "opt.replace": "替换为",
+  "opt.replace.tip": "替换后的文本",
+  "opt.replace.placeholder": "输入替换文本…",
+  "opt.useRegex": "使用正则表达式",
+  "opt.trimLines": "去除每行首尾空格",
+  "opt.dropEmpty": "删除空行",
+  "opt.prefix": "添加前缀",
+  "opt.prefix.tip": "每行前面添加的文本",
+  "opt.prefix.placeholder": "例如：- ",
+  "opt.suffix": "添加后缀",
+  "opt.suffix.tip": "每行后面添加的文本",
+  "opt.suffix.placeholder": "例如：,",
+  "opt.number": "添加行号",
+  "opt.sort": "排序",
+  "opt.sort.none": "不排序",
+  "opt.sort.asc": "升序 A→Z",
+  "opt.sort.desc": "降序 Z→A",
+
+  /* ---- Column Extractor Options ---- */
+  "opt.selectedCols": "选择列",
+  "opt.selectedCols.tip": "勾选要保留的列，拖拽可调整顺序",
+  "opt.rename": "重命名列",
+  "opt.rename.tip": "给选中的列设置新名称（可选）",
+  "opt.rename.placeholder": "新列名",
+
+  /* ---- Merge Options ---- */
+  "opt.dedupKey": "去重依据列",
+  "opt.dedupKey.tip": "按此列的值去重，留空则不做去重",
+  "opt.dedupKey.placeholder": "输入列名…",
+  "opt.joinType": "合并方式",
+  "opt.joinType.tip": "多个文件的合并策略",
+  "opt.joinType.union": "纵向合并（追加行）",
+  "opt.joinType.inner": "内连接（仅保留共有列）",
+  "opt.joinType.outer": "外连接（保留全部列）",
+
+  /* ---- Case Converter Options ---- */
+  "opt.target": "目标格式",
+  "opt.target.camel": "camelCase",
+  "opt.target.pascal": "PascalCase",
+  "opt.target.snake": "snake_case",
+  "opt.target.kebab": "kebab-case",
+  "opt.target.constant": "CONSTANT_CASE",
+  "opt.target.space": "space separated",
+  "opt.target.title": "Title Case",
+  "opt.target.sentence": "Sentence case",
+  "opt.target.toggle": "tOGGLE cASE",
+
+  /* ---- Regex Tester ---- */
+  "opt.regexPattern": "正则表达式",
+  "opt.regexPattern.placeholder": "例如：\\d{3,4}",
+  "opt.testText": "测试文本",
+  "opt.testText.placeholder": "在此输入要测试的文本…",
+  "opt.flags": "标志位",
+  "opt.flags.tip": "正则标志位，如 g（全局）、i（忽略大小写）",
+  "opt.flags.placeholder": "gim",
+  "opt.regexReplace": "替换测试",
+  "opt.regexReplace.tip": "测试替换功能（可选）",
+  "opt.regexReplace.placeholder": "替换为…",
+  "opt.matchCount": "匹配数",
+  "opt.regexError": "❌ 正则表达式错误：",
+
+  /* ---- Base64 Tool ---- */
+  "opt.base64Mode": "操作模式",
+  "opt.base64Mode.encode": "编码 (Encode)",
+  "opt.base64Mode.decode": "解码 (Decode)",
+  "opt.base64Mode.urlEncode": "URL 编码",
+  "opt.base64Mode.urlDecode": "URL 解码",
+  "opt.base64Mode.htmlEncode": "HTML 转义",
+  "opt.base64Mode.htmlDecode": "HTML 反转义",
+
+  /* ---- Image Batch ---- */
+  "opt.imageQuality": "图片质量",
+  "opt.imageQuality.tip": "JPEG/WebP 输出质量（1-100）",
+  "opt.imageWidth": "最大宽度 (px)",
+  "opt.imageWidth.tip": "等比例缩放，0 为不限制",
+  "opt.imageWidth.placeholder": "例如 1920",
+  "opt.imageHeight": "最大高度 (px)",
+  "opt.imageHeight.tip": "等比例缩放，0 为不限制",
+  "opt.imageHeight.placeholder": "例如 1080",
+  "opt.imageFormat": "输出格式",
+  "opt.imageFormat.tip": "转换后的图片格式",
+  "opt.imageFormat.original": "保持原格式",
+  "opt.imageFormat.jpeg": "JPEG",
+  "opt.imageFormat.png": "PNG",
+  "opt.imageFormat.webp": "WebP",
+  "opt.imageWatermark": "水印文字",
+  "opt.imageWatermark.tip": "添加文字水印，留空不添加",
+  "opt.imageWatermark.placeholder": "DataForge Pro",
+  "opt.imageGrayscale": "转为灰度图",
+  "opt.imageGrayscale.tip": "将彩色图片转为灰度/黑白",
+
+  /* ---- Errors ---- */
+  "err.parseCSV": "CSV 解析失败：%s",
+  "err.parseJSON": "JSON 解析失败：%s",
+  "err.noData": "请先输入或上传数据。",
+  "err.invalidRegex": "正则表达式无效：%s",
+  "err.fileType": "不支持的文件类型：%s",
+  "err.fileSize": "文件过大（超过 %s），请分批处理。",
+  "err.unknown": "发生未知错误：%s",
+};
+
+const EN = {};
+
+/* Build EN by using key names as defaults (or a separate EN map) */
+/* For simplicity, we auto-generate EN from the keys where value === key name */
+/* Actually, we'll build EN explicitly for keys that differ from English phrasing */
+
+/* Helper: flatten translation keys */
+function _flatten(obj, prefix, target) {
+  for (const k in obj) {
+    const key = prefix ? prefix + "." + k : k;
+    if (typeof obj[k] === "string") {
+      target[key] = obj[k];
+    } else {
+      _flatten(obj[k], key, target);
+    }
+  }
+}
+const _en = {};
+/* We'll define EN translations inline where they differ from ZH */
+/* For now, auto-generate English from the English-like keys */
+/* Actually, let's build a proper EN map */
+
+const EN_DICT = {
+  "brand.name": "DataForge Pro",
+  "brand.tagline": "In-browser data toolkit · 100% local · Privacy-first",
+  "brand.tagline.en": "In-browser data toolkit · 100% local · Privacy-first",
+  "hero.title": "Choose a tool to start",
+  "hero.subtitle": "Everything runs in your browser. Your data never leaves your computer.",
+  "search.placeholder": "🔍 Search tools (e.g. CSV, dedup, Excel, JSON…)",
+  "license.status.unlocked": "✅ Activated",
+  "license.status.trial": "🔓 Trial",
+
+  "license.modal.title": "Activate DataForge Pro",
+  "license.modal.desc": "Enter your license key purchased from Gumroad.",
+  "license.input.placeholder": "DFP-XXXX-XXXX-XXXX",
+  "license.btn.cancel": "Cancel",
+  "license.btn.activate": "Activate",
+  "license.hint.valid": "✅ Valid key! All Pro tools unlocked.",
+  "license.hint.invalid": "❌ Invalid key. Please check and try again.",
+  "license.hint.consumed": "❌ This key has reached its device limit.",
+  "license.footer": "DataForge Pro v1.0 · © 2026",
+
+  "cat.table": "Table",
+  "cat.convert": "Convert",
+  "cat.text": "Text",
+  "cat.utility": "Utility",
+  "cat.image": "Image",
+
+  "tool.csv-cleaner.name": "CSV Cleaner",
+  "tool.csv-cleaner.desc": "Dedup, trim, normalize case, strip quotes, fill empties, and more.",
+  "tool.csv-to-json.name": "CSV ⇄ JSON Converter",
+  "tool.csv-to-json.desc": "Bidirectional CSV ↔ JSON with type inference and pretty-print.",
+  "tool.csv-to-sql.name": "CSV → SQL Generator",
+  "tool.csv-to-sql.desc": "Generate INSERT / CREATE TABLE statements for MySQL, Postgres, etc.",
+  "tool.csv-to-markdown.name": "Table → Markdown",
+  "tool.csv-to-markdown.desc": "Convert CSV/Excel tables to Markdown format for docs & README.",
+  "tool.json-formatter.name": "JSON Formatter / Validator",
+  "tool.json-formatter.desc": "Beautify, minify, validate, sort keys, and escape JSON.",
+  "tool.text-batch.name": "Text Batch Processor",
+  "tool.text-batch.desc": "Batch find/replace, add prefix/suffix, numbering, case conversion, regex.",
+  "tool.column-extractor.name": "Column Extractor / Reorder",
+  "tool.column-extractor.desc": "Select, sort, rename, delete, and reorder table columns.",
+  "tool.dedup-merge.name": "Multi-table Merge / Dedup",
+  "tool.dedup-merge.desc": "Merge multiple CSV files, deduplicate by key column.",
+  "tool.case-converter.name": "Case Converter",
+  "tool.case-converter.desc": "Convert between camelCase, snake_case, kebab-case, PascalCase & more.",
+  "tool.regex-tester.name": "Regex Tester",
+  "tool.regex-tester.desc": "Test regex patterns in real-time with highlighting and replace preview.",
+  "tool.base64-tool.name": "Base64 / URL Encode/Decode",
+  "tool.base64-tool.desc": "Encode/decode Base64, URL, HTML entities in batch.",
+  "tool.image-batch.name": "Image Batch Processor",
+  "tool.image-batch.desc": "Compress, resize, convert format, add watermark — all in-browser.",
+
+  "wb.input": "Input",
+  "wb.upload": "📁 Upload File",
+  "wb.sample": "Load Sample",
+  "wb.clear": "Clear",
+  "wb.input.placeholder": "Paste data here, or upload a file…",
+  "wb.options": "Options",
+  "wb.run": "⚡ Run",
+  "wb.output": "Output",
+  "wb.copy": "📋 Copy",
+  "wb.export": "💾 Export File",
+  "wb.output.placeholder": "Results will appear here…",
+  "wb.copied": "✅ Copied to clipboard!",
+  "wb.pro.locked": "🔒 This is a Pro Tool",
+  "wb.pro.locked.desc": "Enter your license key to unlock all Pro tools.",
+  "wb.pro.activate": "Activate",
+  "wb.pro.back": "← Back to tool list",
+  "wb.stat.rows": "rows",
+  "wb.stat.cols": "cols",
+  "wb.stat.chars": "chars",
+  "wb.stat.lines": "lines",
+  "wb.stat.bytes": "bytes",
+  "wb.stat.records": "records",
+  "wb.stat.error": "⚠️ Error: ",
+  "wb.no.data": "Please enter data first",
+  "wb.upload.multi": "📁 Upload Multiple Files",
+
+  "opt.trim": "Trim whitespace",
+  "opt.trim.tip": "Remove leading/trailing whitespace from each cell",
+  "opt.dropEmptyRows": "Drop empty rows",
+  "opt.dropEmptyRows.tip": "Remove rows where all fields are empty",
+  "opt.dedup": "Deduplicate (full row)",
+  "opt.dedup.tip": "Remove completely duplicate rows, keep first occurrence",
+  "opt.caseMode": "Case conversion",
+  "opt.caseMode.tip": "Convert text to upper or lower case",
+  "opt.caseMode.none": "No change",
+  "opt.caseMode.upper": "UPPER CASE",
+  "opt.caseMode.lower": "lower case",
+  "opt.hasHeader": "First row is header",
+  "opt.hasHeader.tip": "Skip header row when applying case conversion",
+  "opt.stripQuotes": "Strip quotes",
+  "opt.stripQuotes.tip": "Remove surrounding double quotes from cells",
+  "opt.dedupColumn": "Deduplicate by column",
+  "opt.dedupColumn.tip": "Keep only rows with unique values in this column",
+  "opt.dedupColumn.placeholder": "Enter column name, empty = full row",
+  "opt.fillEmpty": "Fill empty cells",
+  "opt.fillEmpty.tip": "Replace empty cells with a specified value",
+  "opt.fillEmpty.placeholder": "e.g. N/A",
+  "opt.removeEmptyCols": "Remove empty columns",
+  "opt.removeEmptyCols.tip": "Remove columns where all rows are empty",
+  "opt.normalizeWhitespace": "Normalize whitespace",
+  "opt.normalizeWhitespace.tip": "Collapse multiple spaces/tabs into single space",
+  "opt.stripHTML": "Strip HTML tags",
+  "opt.stripHTML.tip": "Remove HTML tags, keep only plain text",
+  "opt.dateFormat": "Normalize date format",
+  "opt.dateFormat.tip": "Convert common date formats to standard",
+  "opt.dateFormat.none": "No change",
+  "opt.dateFormat.ymd": "To YYYY-MM-DD",
+  "opt.dateFormat.dmy": "To DD/MM/YYYY",
+  "opt.validateEmail": "Validate email",
+  "opt.validateEmail.tip": "Detect and mark/remove invalid email addresses",
+  "opt.validateEmail.off": "No action",
+  "opt.validateEmail.mark": "Mark only",
+  "opt.validateEmail.remove": "Remove row",
+
+  "opt.pretty": "Pretty print",
+  "opt.pretty.tip": "Use indentation and line breaks for readable JSON",
+  "opt.inferTypes": "Infer types",
+  "opt.inferTypes.tip": "Auto-detect numbers and booleans (not all as strings)",
+  "opt.jsonFrom": "Direction",
+  "opt.jsonFrom.csv": "CSV → JSON",
+  "opt.jsonFrom.json": "JSON → CSV",
+
+  "opt.tableName": "Table name",
+  "opt.tableName.tip": "Table name used in SQL statements",
+  "opt.tableName.placeholder": "my_table",
+  "opt.dialect": "Dialect",
+  "opt.dialect.tip": "Identifier quoting style",
+  "opt.dialect.mysql": "MySQL (backtick)",
+  "opt.dialect.postgres": "PostgreSQL (double quote)",
+  "opt.createTable": "Generate CREATE TABLE",
+  "opt.createTable.tip": "Auto-infer column types and generate DDL",
+  "opt.multiRow": "Multi-row INSERT",
+  "opt.multiRow.tip": "Single INSERT with multiple value rows",
+
+  "opt.align": "Column alignment",
+  "opt.align.tip": "Set Markdown table column alignment",
+  "opt.align.left": "Left",
+  "opt.align.center": "Center",
+  "opt.align.right": "Right",
+
+  "opt.minify": "Minify (single line)",
+  "opt.sortKeys": "Sort keys",
+  "opt.indent": "Indent spaces",
+  "opt.indent.tip": "Number of spaces for indentation",
+
+  "opt.find": "Find",
+  "opt.find.tip": "Text or regex pattern to search for",
+  "opt.find.placeholder": "Enter search text…",
+  "opt.replace": "Replace with",
+  "opt.replace.tip": "Replacement text",
+  "opt.replace.placeholder": "Enter replacement…",
+  "opt.useRegex": "Use regex",
+  "opt.trimLines": "Trim each line",
+  "opt.dropEmpty": "Drop empty lines",
+  "opt.prefix": "Prefix",
+  "opt.prefix.tip": "Text to prepend to each line",
+  "opt.prefix.placeholder": "e.g. - ",
+  "opt.suffix": "Suffix",
+  "opt.suffix.tip": "Text to append to each line",
+  "opt.suffix.placeholder": "e.g. ,",
+  "opt.number": "Add line numbers",
+  "opt.sort": "Sort",
+  "opt.sort.none": "No sort",
+  "opt.sort.asc": "Ascending A→Z",
+  "opt.sort.desc": "Descending Z→A",
+
+  "opt.selectedCols": "Select columns",
+  "opt.selectedCols.tip": "Check columns to keep, drag to reorder",
+  "opt.rename": "Rename column",
+  "opt.rename.tip": "Set a new name for the selected column (optional)",
+  "opt.rename.placeholder": "New name",
+
+  "opt.dedupKey": "Dedup key column",
+  "opt.dedupKey.tip": "Deduplicate by this column's value; leave empty for no dedup",
+  "opt.dedupKey.placeholder": "Enter column name…",
+  "opt.joinType": "Merge method",
+  "opt.joinType.tip": "Strategy for merging multiple files",
+  "opt.joinType.union": "Union (append rows)",
+  "opt.joinType.inner": "Inner join (keep common columns only)",
+  "opt.joinType.outer": "Outer join (keep all columns)",
+
+  "opt.target": "Target format",
+  "opt.target.camel": "camelCase",
+  "opt.target.pascal": "PascalCase",
+  "opt.target.snake": "snake_case",
+  "opt.target.kebab": "kebab-case",
+  "opt.target.constant": "CONSTANT_CASE",
+  "opt.target.space": "space separated",
+  "opt.target.title": "Title Case",
+  "opt.target.sentence": "Sentence case",
+  "opt.target.toggle": "tOGGLE cASE",
+
+  "opt.regexPattern": "Regex pattern",
+  "opt.regexPattern.placeholder": "e.g. \\d{3,4}",
+  "opt.testText": "Test text",
+  "opt.testText.placeholder": "Enter text to test against…",
+  "opt.flags": "Flags",
+  "opt.flags.tip": "Regex flags: g (global), i (ignore case), m (multiline)",
+  "opt.flags.placeholder": "gim",
+  "opt.regexReplace": "Replace test",
+  "opt.regexReplace.tip": "Test replacement (optional)",
+  "opt.regexReplace.placeholder": "Replace with…",
+  "opt.matchCount": "Matches",
+  "opt.regexError": "❌ Regex error: ",
+
+  "opt.base64Mode": "Mode",
+  "opt.base64Mode.encode": "Encode (Base64)",
+  "opt.base64Mode.decode": "Decode (Base64)",
+  "opt.base64Mode.urlEncode": "URL Encode",
+  "opt.base64Mode.urlDecode": "URL Decode",
+  "opt.base64Mode.htmlEncode": "HTML Escape",
+  "opt.base64Mode.htmlDecode": "HTML Unescape",
+
+  "opt.imageQuality": "Quality",
+  "opt.imageQuality.tip": "JPEG/WebP output quality (1-100)",
+  "opt.imageWidth": "Max width (px)",
+  "opt.imageWidth.tip": "Scale to fit width, 0 = no limit",
+  "opt.imageWidth.placeholder": "e.g. 1920",
+  "opt.imageHeight": "Max height (px)",
+  "opt.imageHeight.tip": "Scale to fit height, 0 = no limit",
+  "opt.imageHeight.placeholder": "e.g. 1080",
+  "opt.imageFormat": "Output format",
+  "opt.imageFormat.tip": "Convert image to this format",
+  "opt.imageFormat.original": "Keep original",
+  "opt.imageFormat.jpeg": "JPEG",
+  "opt.imageFormat.png": "PNG",
+  "opt.imageFormat.webp": "WebP",
+  "opt.imageWatermark": "Watermark text",
+  "opt.imageWatermark.tip": "Add text watermark, leave empty to skip",
+  "opt.imageWatermark.placeholder": "DataForge Pro",
+  "opt.imageGrayscale": "Grayscale",
+  "opt.imageGrayscale.tip": "Convert to black & white",
+
+  "err.parseCSV": "CSV parse failed: %s",
+  "err.parseJSON": "JSON parse failed: %s",
+  "err.noData": "Please enter or upload data first.",
+  "err.invalidRegex": "Invalid regex: %s",
+  "err.fileType": "Unsupported file type: %s",
+  "err.fileSize": "File too large (over %s). Please split and process.",
+  "err.unknown": "An unknown error occurred: %s",
+};
+
+/* ---- Language Manager ---- */
+window.DFP.lang = "en"; // default: English
+
+window.DFP.t = function (key) {
+  const dict = window.DFP.lang === "zh" ? ZH : EN_DICT;
+  return dict[key] || key;
+};
+
+window.DFP.setLang = function (lng) {
+  window.DFP.lang = lng;
+  document.documentElement.lang = lng === "zh" ? "zh-CN" : "en";
+  // Dispatch event so pages can re-render
+  document.dispatchEvent(new CustomEvent("langchange", { detail: { lang: lng } }));
+  // Save preference
+  try { localStorage.setItem("dfp_lang", lng); } catch (e) {}
+};
+
+// Restore saved language
+try {
+  const saved = localStorage.getItem("dfp_lang");
+  if (saved) window.DFP.setLang(saved);
+} catch (e) {}
