@@ -61,10 +61,16 @@ window.DFP.TOOLS = [
     options: [
       {
         key: "joinType", type: "select", default: "union",
-        opts: ["union", "inner", "outer"]
+        opts: ["union", "inner", "outer", "first"]
       },
       { key: "dedup", type: "checkbox", default: true },
       { key: "dedupKey", type: "text", default: "" },
+      { key: "sourceCol", type: "checkbox", default: false },
+      { key: "skipEmpty", type: "checkbox", default: false },
+      {
+        key: "mergeFormat", type: "select", default: "csv",
+        opts: ["csv", "xlsx"]
+      },
     ],
   },
 
@@ -209,10 +215,32 @@ window.DFP.TOOLS = [
         opts: ["original", "jpeg", "png", "webp"]
       },
       { key: "imageQuality", type: "range", default: 85, min: 1, max: 100 },
+      {
+        key: "resizeMode", type: "select", default: "fit",
+        opts: ["fit", "percent", "exact"]
+      },
       { key: "imageWidth", type: "number", default: 0 },
       { key: "imageHeight", type: "number", default: 0 },
+      { key: "imageScale", type: "number", default: 100 },
+      {
+        key: "imageRotate", type: "select", default: "0",
+        opts: ["0", "90", "180", "270"]
+      },
+      { key: "imageFlipH", type: "checkbox", default: false },
+      { key: "imageFlipV", type: "checkbox", default: false },
       { key: "imageGrayscale", type: "checkbox", default: false },
       { key: "imageWatermark", type: "text", default: "" },
+      {
+        key: "wmPosition", type: "select", default: "br",
+        opts: ["br", "bl", "tr", "tl", "center", "tile"]
+      },
+      { key: "wmSize", type: "number", default: 0 },
+      { key: "wmOpacity", type: "range", default: 85, min: 10, max: 100 },
+      { key: "wmColor", type: "color", default: "#ffffff" },
+      { key: "imageWm", type: "file", default: "" },
+      { key: "imageWmScale", type: "number", default: 25 },
+      { key: "imageWmTile", type: "checkbox", default: false },
+      { key: "imageNameSuffix", type: "text", default: "" },
     ],
   },
 ];

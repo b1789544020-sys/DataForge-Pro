@@ -295,50 +295,91 @@ window.DFPEngine = (function () {
     return out;
   }
 
-  /* ---------------- Multi-table Merge / Dedup ---------------- */
-  function mergeTables(tables, opts) {
-    if (!tables.length) return [];
-    const joinType = opts.joinType || "union";
-    let header, body = [];
+  /* ---------------- Multi-table Merge / Dedup ----------------
+   * Each entry is either a raw 2-D array (pasted CSV) or an object:
+   *   { rows: [[header], ...], file, sheet, label }
+   * Options: joinType union|inner|outer|first, sourceCol(+sourceColName),
+   * skipEmpty, dedup, dedupKey. */
+  function mergeTables(tables, opts = {}) {
+    let list = (tables || [])
+      .map(t => Array.isArray(t) ? { rows: t } : t)
+      .filter(t => t.rows && t.rows.length);
+    if (opts.skipEmpty) {
+      list = list.filter(t => t.rows.some(r => r.some(c => String(c == null ? "" : c).trim() !== "")));
+    }
+    if (!list.length) return [];
 
-    if (joinType === "inner") {
-      // keep only columns present in ALL tables
-      const headerSets = tables.map(t => t[0]);
-      header = headerSets[0].filter(h => headerSets.every(hs => hs.includes(h)));
-      tables.forEach(t => {
-        const idx = header.map(h => t[0].indexOf(h));
-        t.slice(1).forEach(r => body.push(idx.map(i => r[i] !== undefined ? r[i] : "")));
-      });
+    const addSource = !!opts.sourceCol;
+    const sourceHeader = opts.sourceColName || "Source";
+    const labelOf = t => {
+      if (t.label) return t.label;
+      if (t.file && t.sheet) return t.file + " / " + t.sheet;
+      return t.file || "";
+    };
+
+    const headers = list.map(t => t.rows[0]);
+    const dedupe = arr => {
+      const out = [];
+      arr.forEach(x => { if (!out.includes(x)) out.push(x); });
+      return out;
+    };
+    let columns;
+    if (opts.joinType === "first") {
+      columns = headers[0].slice();                          // keep first file's columns
+    } else if (opts.joinType === "inner") {
+      columns = dedupe(headers.reduce((acc, h) => acc.filter(x => h.includes(x))));
     } else {
-      // union / outer: superset of all columns
-      header = [];
-      tables.forEach(t => t[0].forEach(h => { if (!header.includes(h)) header.push(h); }));
-      tables.forEach(t => {
-        const idx = header.map(h => t[0].indexOf(h));
-        t.slice(1).forEach(r => body.push(idx.map(i => i >= 0 && r[i] !== undefined ? r[i] : "")));
-      });
-    }
-
-    // Dedup identical rows across all merged tables
-    if (opts.dedup) {
-      const seenRow = new Set(), kept = [];
-      body.forEach(r => {
-        const k = r.join("\u0001");
-        if (!seenRow.has(k)) { seenRow.add(k); kept.push(r); }
-      });
-      body = kept;
-    }
-
-    // Dedup by key column
-    if (opts.dedupKey && opts.dedupKey !== "") {
-      const colIdx = header.indexOf(opts.dedupKey);
-      if (colIdx >= 0) {
-        const seen = new Set(), result = [];
-        body.forEach(r => { if (!seen.has(r[colIdx])) { seen.add(r[colIdx]); result.push(r); } });
-        body = result;
+      const all = new Set();
+      headers.forEach(h => h.forEach(x => all.add(x)));
+      if (opts.joinType === "outer") {
+        columns = Array.from(all);
+      } else {
+        const common = dedupe(headers.reduce((acc, h) => acc.filter(x => h.includes(x))));
+        columns = common.slice();
+        all.forEach(x => { if (!columns.includes(x)) columns.push(x); });
       }
     }
-    return [header, ...body];
+
+    const mergedRows = [];
+    list.forEach(t => {
+      const head = t.rows[0];
+      const label = labelOf(t);
+      t.rows.slice(1).forEach(row => {
+        if (opts.joinType === "inner" && !row.some(v => String(v).trim() !== "")) return;
+        const aligned = columns.map(col => {
+          const i = head.indexOf(col);
+          return i >= 0 ? (row[i] !== undefined ? row[i] : "") : "";
+        });
+        if (addSource) aligned.unshift(label);
+        mergedRows.push(aligned);
+      });
+    });
+
+    const outHeader = addSource ? [sourceHeader].concat(columns) : columns.slice();
+    let out = [outHeader].concat(mergedRows);
+
+    if (opts.dedup !== false) {
+      if (opts.dedupKey) {
+        const seen = new Set();
+        out = out.filter((row, i) => {
+          if (i === 0) return true;
+          const ki = outHeader.indexOf(opts.dedupKey);
+          if (ki < 0) return true;
+          if (seen.has(row[ki])) return false;
+          seen.add(row[ki]);
+          return true;
+        });
+      } else {
+        const seen = new Set();
+        out = out.filter(row => {
+          const k = row.join("\u0001");
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        });
+      }
+    }
+    return out;
   }
 
   /* ---------------- Case Converter ---------------- */
@@ -436,11 +477,203 @@ window.DFPEngine = (function () {
     }
   }
 
+  /* ---------------- Image pipeline (batch tool) ---------------- */
+
+  function canvasBlob(canvas, mime, quality) {
+    return new Promise(resolve => canvas.toBlob(b => resolve(b), mime, quality));
+  }
+
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+
+  // Read the EXIF orientation tag (1-8) from a JPEG ArrayBuffer.
+  // Returns 1 when absent/undecodable. Only JPEG can carry EXIF orientation.
+  function jpegOrientation(buf) {
+    try {
+      const dv = new DataView(buf);
+      if (dv.byteLength < 4 || dv.getUint16(0) !== 0xFFD8) return 1;
+      let off = 2;
+      while (off + 4 < dv.byteLength) {
+        const marker = dv.getUint16(off);
+        if (marker === 0xFFE1) {
+          // APP1 segment: "Exif\0\0" then the TIFF header.
+          if (dv.getUint32(off + 4) === 0x45786966 && dv.getUint16(off + 8) === 0) {
+            const tiff = off + 10;
+            const little = dv.getUint16(tiff) === 0x4949;
+            const g16 = p => dv.getUint16(p, little);
+            const g32 = p => dv.getUint32(p, little);
+            if (g16(tiff + 2) !== 0x2A) return 1;
+            const ifd = tiff + g32(tiff + 4);
+            const n = g16(ifd);
+            for (let i = 0; i < n; i++) {
+              const e = ifd + 2 + i * 12;
+              if (g16(e) === 0x0112) return g16(e + 8); // Orientation tag
+            }
+            return 1;
+          }
+        }
+        if ((marker & 0xFF00) !== 0xFF00) break;
+        off += 2 + dv.getUint16(off + 2);
+      }
+    } catch (e) { /* malformed EXIF - treat as normal */ }
+    return 1;
+  }
+
+  // EXIF orientation values that rotate the image -> clockwise degrees.
+  function orientDegrees(o) {
+    return o === 3 ? 180 : o === 6 ? 90 : o === 8 ? 270 : 0;
+  }
+
+  function drawWatermark(ctx, wm, w, h) {
+    wm = wm || {};
+    const alpha = Math.max(0.05, Math.min(1, (wm.opacity == null ? 0.85 : wm.opacity)));
+
+    if (wm.text) {
+      const fs = wm.fontSize > 0 ? wm.fontSize : Math.max(14, Math.round(Math.min(w, h) * 0.05));
+      ctx.font = "600 " + fs + "px -apple-system, 'Segoe UI', Arial, sans-serif";
+      ctx.fillStyle = wm.color || "#ffffff";
+      ctx.globalAlpha = alpha;
+      const pad = Math.round(fs * 0.7);
+      const tw = ctx.measureText(wm.text).width;
+      if (wm.position === "tile") {
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(-Math.PI / 6);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const stepX = tw + fs * 3, stepY = fs * 6;
+        for (let y = -h; y <= h; y += stepY)
+          for (let x = -w; x <= w; x += stepX) ctx.fillText(wm.text, x, y);
+        ctx.restore();
+      } else {
+        let x, y, align = "left", base = "alphabetic";
+        if (wm.position === "bl") { x = pad; y = h - pad; base = "bottom"; }
+        else if (wm.position === "tr") { x = w - pad; y = pad + fs * 0.85; align = "right"; }
+        else if (wm.position === "tl") { x = pad; y = pad + fs * 0.85; }
+        else if (wm.position === "center") { x = w / 2; y = h / 2; align = "center"; base = "middle"; }
+        else { x = w - pad; y = h - pad; align = "right"; base = "bottom"; } // br
+        ctx.textAlign = align;
+        ctx.textBaseline = base;
+        ctx.fillText(wm.text, x, y);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    if (wm.image && wm.image.img) {
+      const im = wm.image.img;
+      const iw = im.naturalWidth || im.width;
+      const ih = im.naturalHeight || im.height;
+      if (iw > 0 && ih > 0) {
+        const ww = Math.max(1, w * ((wm.image.scale || 25) / 100));
+        const wh = ww * ih / iw;
+        const pad = Math.round(Math.min(w, h) * 0.02 + 6);
+        ctx.globalAlpha = alpha;
+        if (wm.image.tile) {
+          const stepX = ww + pad * 2, stepY = wh + pad * 4;
+          for (let y = pad; y < h + wh; y += stepY)
+            for (let x = pad; x < w + ww; x += stepX) ctx.drawImage(im, x, y, ww, wh);
+        } else {
+          ctx.drawImage(im, w - ww - pad, h - wh - pad, ww, wh); // bottom-right
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /* Full image pipeline. `img` is a loaded <img>/CanvasImageSource.
+   * opts: format, quality, resizeMode, maxW, maxH, scale, rotation,
+   *       flipH, flipV, grayscale, crop {x,y,w,h,circle}, watermark {...},
+   *       sourceMime. Returns Promise<Blob>. */
+  async function processImage(img, opts = {}, meta = {}) {
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+
+    /* 1) normalized crop rect in source-image coordinates */
+    let sx = 0, sy = 0, sw = iw, sh = ih;
+    const crop = opts.crop || null;
+    if (crop && (crop.circle || crop.w < 0.999 || crop.h < 0.999)) {
+      sx = clamp01(crop.x) * iw;
+      sy = clamp01(crop.y) * ih;
+      sw = Math.min(clamp01(crop.w) * iw, iw - sx);
+      sh = Math.min(clamp01(crop.h) * ih, ih - sy);
+      if (!(sw > 1 && sh > 1)) { sx = 0; sy = 0; sw = iw; sh = ih; }
+    }
+    const base = document.createElement("canvas");
+    base.width = Math.max(1, Math.round(sw));
+    base.height = Math.max(1, Math.round(sh));
+    base.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, base.width, base.height);
+
+    /* 2) EXIF orientation + rotation + flips */
+    const rot = ((parseInt(opts.rotation, 10) || 0) + orientDegrees(meta.orientation)) % 360;
+    const swap = rot === 90 || rot === 270;
+    const w0 = base.width, h0 = base.height;
+    const w1 = swap ? h0 : w0, h1 = swap ? w0 : h0;
+    const stage = document.createElement("canvas");
+    stage.width = w1; stage.height = h1;
+    const c2 = stage.getContext("2d");
+    c2.translate(w1 / 2, h1 / 2);
+    c2.rotate(rot * Math.PI / 180);
+    c2.scale(opts.flipH ? -1 : 1, opts.flipV ? -1 : 1);
+    if (opts.grayscale) c2.filter = "grayscale(1)";
+    c2.drawImage(base, -w0 / 2, -h0 / 2);
+    c2.filter = "none";
+
+    /* 3) resize */
+    let tw = w1, th = h1;
+    const mode = opts.resizeMode || "fit";
+    if (mode === "percent") {
+      const pct = Math.max(1, parseInt(opts.scale, 10) || 100) / 100;
+      tw = Math.max(1, Math.round(w1 * pct));
+      th = Math.max(1, Math.round(h1 * pct));
+    } else if (mode === "exact" && opts.maxW > 0 && opts.maxH > 0) {
+      tw = Math.round(opts.maxW); th = Math.round(opts.maxH);
+    } else {
+      let s = 1;
+      if (opts.maxW > 0) s = Math.min(s, opts.maxW / w1);
+      if (opts.maxH > 0) s = Math.min(s, opts.maxH / h1);
+      tw = Math.max(1, Math.round(w1 * s));
+      th = Math.max(1, Math.round(h1 * s));
+    }
+    const out = document.createElement("canvas");
+    out.width = tw; out.height = th;
+    const ctx = out.getContext("2d");
+    ctx.drawImage(stage, 0, 0, tw, th);
+
+    /* 4) circular mask (centered on the largest center square -> PNG) */
+    if (crop && crop.circle) {
+      const s = Math.min(tw, th);
+      const sq = document.createElement("canvas");
+      sq.width = s; sq.height = s;
+      const sc = sq.getContext("2d");
+      sc.drawImage(out, (tw - s) / 2, (th - s) / 2, s, s, 0, 0, s, s);
+      sc.globalCompositeOperation = "destination-in";
+      sc.beginPath();
+      sc.arc(s / 2, s / 2, s / 2, 0, Math.PI * 2);
+      sc.fill();
+      return canvasBlob(sq, "image/png");
+    }
+
+    /* 5) watermarks */
+    drawWatermark(ctx, opts.watermark, tw, th);
+
+    /* 6) encode */
+    let mime;
+    if (opts.format && opts.format !== "original") {
+      mime = opts.format === "jpeg" ? "image/jpeg" : "image/" + opts.format;
+    } else {
+      mime = meta.mime || opts.sourceMime || "image/png";
+      if (mime === "image/jpg") mime = "image/jpeg";
+      if (!/^image\/(jpeg|png|webp)$/.test(mime)) mime = "image/png";
+    }
+    const q = Math.max(0.05, Math.min(1, (parseInt(opts.quality, 10) || 85) / 100));
+    return canvasBlob(out, mime, q);
+  }
+
   /* ---------------- Public API ---------------- */
   return {
     detectDelimiter, parseCSV, toCSV, rowsToObjects, inferValue,
     cleanCSV, csvToJSON, jsonToCSV, csvToSQL, toMarkdown,
     formatJSON, textBatch, extractColumns, mergeTables,
     convertCase, regexTest, codec,
+    processImage, canvasBlob, jpegOrientation,
   };
 })();

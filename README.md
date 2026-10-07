@@ -56,6 +56,10 @@ Most online "free" converters do one thing — and quietly upload your data to a
 
 > 🔓 **All 12 tools are free and open source** under the MIT License. No Pro tier, no license keys, no paywalls.
 
+> 🆕 **v2 — two flagship tools upgraded**
+> - **Multi-table Merge** now reads real **Excel `.xlsx` files** (zero-dependency reader/writer using the browser's native compression), walks **every worksheet in every workbook**, adds a source column, skips empty files, and exports CSV **or `.xlsx`**.
+> - **Image Batch** is a small photo workbench now: **interactive crop** (free / 1:1 / 4:3 / 16:9 / circle), **rotate / flip**, percentage & exact resizing, EXIF orientation auto-fix, configurable **text and logo watermarks** (position, color, opacity, diagonal tile), filename suffix, and one-click **ZIP** packaging for the whole batch.
+
 ---
 
 ## 🎯 Who Is It For?
@@ -107,7 +111,7 @@ git clone https://github.com/YOUR_USERNAME/dataforge-pro.git
 | --------------------------------- | --------------------------------------------------------------------------------------------- |
 | 🧹 **CSV Cleaner**                | Dedup, trim, remove empty rows/cols, normalize case, fill empties, validate emails, dates     |
 | 📊 **Column Extractor / Reorder** | Select, sort, rename, delete columns in a table                                              |
-| 🔗 **Multi-table Merge / Dedup**  | Merge multiple CSVs, dedup by key column, generate a summary table                           |
+| 🔗 **Multi-table Merge / Dedup**  | Merge multiple **CSV and Excel (.xlsx)** files and every worksheet; union/inner/outer/first-file strategies, source column, skip-empty, dedup by key; export CSV or xlsx |
 
 ### 🔄 Convert
 
@@ -131,7 +135,7 @@ git clone https://github.com/YOUR_USERNAME/dataforge-pro.git
 
 | Tool                              | What it does                                                                                  |
 | --------------------------------- | --------------------------------------------------------------------------------------------- |
-| 🖼️ **Image Batch Processor**      | Batch compress, resize, convert (JPEG/PNG/WebP), grayscale, text watermark — all local       |
+| 🖼️ **Image Batch Processor**      | Batch resize (fit / % / exact), **interactive crop (free / ratio / circle), rotate & flip**, EXIF orientation fix, grayscale, configurable text **and image watermarks** (position/opacity/color/tile), filename suffix, multi-file **ZIP download** — JPG/PNG/WebP, all local |
 
 > All 12 tools are unlocked and free. Just open the page and start using them.
 
@@ -215,7 +219,10 @@ A `docs/` folder with placeholder images is recommended so the README renders co
 
 - **Frontend:** Vanilla HTML + CSS + JavaScript (no build step, no framework)
 - **Storage:** `localStorage` for user preferences and AI settings
-- **Dependencies:** Zero. No npm, no CDN, no external calls at runtime — the only network
+- **Dependencies:** Zero CDN, zero sign-up. Excel `.xlsx` read/write uses the browser's native
+  `CompressionStream` / `DecompressionStream` + `DOMParser` (no SheetJS). The only vendored
+  third-party file is **JSZip** (~95 KB, MIT, `assets/vendor/jszip.min.js`), used solely to pack
+  multi-image exports into one `.zip` locally. No external calls at runtime — the only network
   request the app can ever make is to the AI endpoint *you* configure yourself.
 - **Browser support:** Chrome / Edge / Firefox / Safari (latest 2 versions)
 
